@@ -1,0 +1,11 @@
+.contactsList {
+  margin-left: 40px;
+}
+
+.contactItem:not(:last-child) {
+  margin-bottom: 10px;
+}
+
+.contactItemNumer {
+  margin-right: 10px;
+}
