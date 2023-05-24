@@ -1,31 +1,56 @@
-import { Component } from 'react';
-import ContactForm from './contact-form/ContactForm.jsx';
+import { useState, useEffect } from 'react';
+import { ContactForm } from './contact-form/ContactForm.jsx';
 import { Filter } from './filter/Filter.jsx';
 import { ContactList } from './contact-list/ContactList.jsx';
+import { Sort } from './sort/Sort.jsx';
 import css from './App.module.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faArrowDownAZ,
+  faArrowDownZA,
+} from '@fortawesome/free-solid-svg-icons';
+import { ThreeDots } from 'react-loader-spinner';
 
-class App extends Component {
-  state = {
+export const App = () => {
+  const [state, setState] = useState({
     contacts: [],
     filter: '',
-  };
+    sort: { nameOption: false, methodOption: false },
+    onMount: true,
+  });
 
-  componentDidMount() {
+  useEffect(() => {
+    setState(prevState => ({
+      ...prevState,
+      onMount: false,
+    }));
+
+    const storedSort = localStorage.getItem('sort');
+    const parsedSort = JSON.parse(storedSort);
+
+    if (parsedSort) {
+      setState(prevState => ({
+        ...prevState,
+        sort: parsedSort,
+        onMount: true,
+      }));
+    }
+
     const storedContacts = localStorage.getItem('contacts');
-    if (storedContacts) {
-      this.setState({ contacts: JSON.parse(storedContacts) });
-    }
-  }
+    const parsedContacts = JSON.parse(storedContacts);
 
-  componentDidUpdate(prevState) {
-    if (prevState.contacts !== this.state.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    if (parsedContacts) {
+      setState(prevState => ({
+        ...prevState,
+        contacts: parsedContacts,
+      }));
     }
-  }
+  }, []);
 
-  addContact = newContact => {
+  const addContact = newContact => {
     const { name, number } = newContact;
-    const contacts = this.state.contacts;
+    const contacts = state.contacts;
+
     const existingContact = contacts.find(
       contact =>
         contact.name.toLowerCase() === name.toLowerCase() ||
@@ -37,51 +62,169 @@ class App extends Component {
       return;
     }
 
-    this.setState(prevState => ({
+    setState(prevState => ({
+      ...prevState,
       contacts: [...prevState.contacts, newContact],
     }));
-  };
 
-  deleteContact = id => {
-    const updatedContacts = this.state.contacts.filter(
-      contact => contact.id !== id
+    localStorage.setItem(
+      'contacts',
+      JSON.stringify([...state.contacts, newContact])
     );
-    this.setState({ contacts: updatedContacts });
   };
 
-  contactsFilter = () => {
-    const { filter, contacts } = this.state;
+  const deleteContact = id => {
+    const updatedContacts = state.contacts.filter(contact => contact.id !== id);
+    setState(prevState => ({
+      ...prevState,
+      contacts: updatedContacts,
+    }));
+    localStorage.setItem('contacts', JSON.stringify(updatedContacts));
+  };
+
+  const contactsFilter = () => {
+    const { filter, contacts } = state;
     const normalizedFilter = filter.toLowerCase();
 
     return contacts.filter(
       contact =>
         contact.name.toLowerCase().includes(normalizedFilter) ||
-        contact.number.toLowerCase().includes(normalizedFilter)
+        contact.number.includes(normalizedFilter)
     );
   };
 
-  updateFilter = event => {
+  const updateFilter = event => {
     const filter = event.target.value;
-    this.setState({ filter });
+    setState(prevState => ({
+      ...prevState,
+      filter: filter,
+    }));
   };
 
-  render() {
-    return (
-      <div className={css.app}>
-        <h1>Phonebook</h1>
-        <ContactForm
-          contacts={this.state.contacts}
-          addContact={this.addContact}
-        />
-        <h2>Contacts</h2>
-        <Filter filter={this.state.filter} filterContacts={this.updateFilter} />
-        <ContactList
-          contacts={this.contactsFilter()}
-          deleteContact={this.deleteContact}
-        />
-      </div>
+  const handleChange = (value, checked) => {
+    setState(prevState => ({
+      ...prevState,
+      sort: {
+        ...prevState.sort,
+        [value]: checked,
+      },
+    }));
+
+    localStorage.setItem(
+      'sort',
+      JSON.stringify({
+        ...state.sort,
+        [value]: checked,
+      })
     );
-  }
-}
+
+    sortContacts();
+  };
+
+  const sortContacts = () => {
+    const sortInfo = JSON.parse(localStorage.getItem('sort'));
+    const { nameOption, methodOption } = sortInfo;
+    let sortBy;
+    let sortOrder;
+
+    nameOption ? (sortBy = 'lastName') : (sortBy = 'firstName');
+    methodOption ? (sortOrder = 'desc') : (sortOrder = 'asc');
+
+    const contacts = [...state.contacts];
+
+    const sortedContacts = contacts.sort((a, b) => {
+      let nameA;
+      let nameB;
+
+      if (sortBy === 'firstName') {
+        nameA = a.name.split(' ')[0];
+        nameB = b.name.split(' ')[0];
+      } else if (sortBy === 'lastName') {
+        nameA = a.name.split(' ')[1];
+        nameB = b.name.split(' ')[1];
+      }
+
+      return sortOrder === 'asc'
+        ? nameA.localeCompare(nameB)
+        : nameB.localeCompare(nameA);
+    });
+
+    setState(prevState => ({
+      ...prevState,
+      contacts: sortedContacts,
+    }));
+
+    localStorage.setItem('contacts', JSON.stringify(sortedContacts));
+  };
+
+  return (
+    <div className={css.app}>
+      <h1>Phonebook</h1>
+      <ContactForm addContact={addContact} />
+      <h2>Contacts</h2>
+      {state.contacts.length > 0 ? (
+        <>
+          <Filter
+            filter={state.filter}
+            filterContacts={updateFilter}
+            contacts={state.contacts}
+          />
+          <Sort
+            title="Sort contacts by name"
+            value="nameOption"
+            isChecked={state.sort.nameOption}
+            optionOne="First Name"
+            optionTwo="Last Name"
+            handleChange={handleChange}
+            contacts={state.contacts}
+          />
+          <Sort
+            value="methodOption"
+            isChecked={state.sort.methodOption}
+            margin="43px"
+            optionOne={
+              <FontAwesomeIcon
+                icon={faArrowDownAZ}
+                size="lg"
+                style={{ color: '#000000' }}
+              />
+            }
+            optionTwo={
+              <FontAwesomeIcon
+                icon={faArrowDownZA}
+                size="lg"
+                style={{ color: '#000000' }}
+              />
+            }
+            handleChange={handleChange}
+            contacts={state.contacts}
+          />
+          <ContactList
+            contacts={contactsFilter()}
+            deleteContact={deleteContact}
+          />
+        </>
+      ) : state.onMount ? (
+        <>
+          <h5>Locating Contacts</h5>
+          <ThreeDots
+            height="80"
+            width="80"
+            radius="9"
+            color="#4fa94d"
+            ariaLabel="three-dots-loading"
+            wrapperStyle={{}}
+            wrapperClassName=""
+            visible={true}
+          />
+        </>
+      ) : (
+        <h5>
+          No contacts found. Complete the above form to begin adding contacts.
+        </h5>
+      )}
+    </div>
+  );
+};
 
 export default App;

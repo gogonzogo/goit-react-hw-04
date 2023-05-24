@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 export const ContactList = props => {
   return (
     <div>
-      {props.contacts.length > 0 ? (
         <ul className={css.contactsList}>
           {props.contacts.map(contact => (
             <li className={css.contactItem} key={contact.id}>
@@ -19,9 +18,6 @@ export const ContactList = props => {
             </li>
           ))}
         </ul>
-      ) : (
-        <h5>No Contacts</h5>
-      )}
     </div>
   );
 };
