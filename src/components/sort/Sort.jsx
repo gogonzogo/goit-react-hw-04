@@ -52,8 +52,10 @@ Sort.propTypes = {
   value: PropTypes.string.isRequired,
   isChecked: PropTypes.bool.isRequired,
   margin: PropTypes.string,
-  optionOne: PropTypes.string.isRequired,
-  optionTwo: PropTypes.string.isRequired,
+  optionOne: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+    .isRequired,
+  optionTwo: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+    .isRequired,
   handleSortChange: PropTypes.func.isRequired,
   contacts: PropTypes.array.isRequired,
 };

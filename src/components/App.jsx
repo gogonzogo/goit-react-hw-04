@@ -32,7 +32,7 @@ export const App = () => {
       setState(prevState => ({
         ...prevState,
         sort: parsedSort,
-        onMount: true,
+        onMount: false,
       }));
     }
 
@@ -46,41 +46,6 @@ export const App = () => {
       }));
     }
   }, []);
-
-  const addContact = newContact => {
-    const { name, number } = newContact;
-    const contacts = state.contacts;
-
-    const existingContact = contacts.find(
-      contact =>
-        contact.name.toLowerCase() === name.toLowerCase() ||
-        contact.number === number
-    );
-
-    if (existingContact) {
-      alert(`${name} or ${number} is already in contacts`);
-      return;
-    }
-
-    setState(prevState => ({
-      ...prevState,
-      contacts: [...prevState.contacts, newContact],
-    }));
-
-    localStorage.setItem(
-      'contacts',
-      JSON.stringify([...state.contacts, newContact])
-    );
-  };
-
-  const deleteContact = id => {
-    const updatedContacts = state.contacts.filter(contact => contact.id !== id);
-    setState(prevState => ({
-      ...prevState,
-      contacts: updatedContacts,
-    }));
-    localStorage.setItem('contacts', JSON.stringify(updatedContacts));
-  };
 
   const contactsFilter = e => {
     if (e) {
@@ -126,32 +91,69 @@ export const App = () => {
     const { nameOption, methodOption } = sortInfo;
     let sortBy = nameOption ? 'lastName' : 'firstName';
     let sortOrder = methodOption ? 'desc' : 'asc';
+    setState(prevState => {
+      const sortedContacts = [...prevState.contacts].sort((a, b) => { 
+        let nameA;
+        let nameB;
 
-    const sortedContacts = state.contacts.sort((a, b) => {
-      let nameA;
-      let nameB;
+        if (sortBy === 'firstName') {
+          nameA = a.name.split(' ')[0];
+          nameB = b.name.split(' ')[0];
+        } else if (sortBy === 'lastName') {
+           nameA = a.name.split(' ');
+           nameB = b.name.split(' ');
+           nameA = nameA[nameA.length - 1];
+          nameB = nameB[nameB.length - 1];
+        }
+        
+        return sortOrder === 'asc'
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      });
 
-      if (sortBy === 'firstName') {
-        nameA = a.name.split(' ')[0];
-        nameB = b.name.split(' ')[0];
-      } else if (sortBy === 'lastName') {
-        nameA = a.name.split(' ');
-        nameB = b.name.split(' ');
-        nameA = nameA[nameA.length - 1];
-        nameB = nameB[nameB.length - 1];
-      }
+      localStorage.setItem('contacts', JSON.stringify(sortedContacts));
 
-      return sortOrder === 'asc'
-        ? nameA.localeCompare(nameB)
-        : nameB.localeCompare(nameA);
+      return {
+        ...prevState,
+        contacts: sortedContacts,
+      };
+    });
+  };
+
+  const addContact = newContact => {
+    const { name, number } = newContact;
+    const contacts = state.contacts;
+
+    const existingContact = contacts.find(
+      contact =>
+        contact.name.toLowerCase() === name.toLowerCase() ||
+        contact.number === number
+    );
+
+    if (existingContact) {
+      alert(`${name} or ${number} is already in contacts`);
+      return;
+    }
+
+    setState(prevState => {
+      const updatedContacts = [...prevState.contacts, newContact];
+      localStorage.setItem('contacts', JSON.stringify(updatedContacts));
+      return {
+        ...prevState,
+        contacts: updatedContacts,
+      };
     });
 
+    sortContacts();
+  };
+
+  const deleteContact = id => {
+    const updatedContacts = state.contacts.filter(contact => contact.id !== id);
     setState(prevState => ({
       ...prevState,
-      contacts: sortedContacts,
+      contacts: updatedContacts,
     }));
-
-    localStorage.setItem('contacts', JSON.stringify(sortedContacts));
+    localStorage.setItem('contacts', JSON.stringify(updatedContacts));
   };
 
   return (
