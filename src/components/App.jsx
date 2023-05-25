@@ -35,7 +35,10 @@ export const App = () => {
         onMount: false,
       }));
     } else {
-      localStorage.setItem('sort', JSON.stringify(state.sort));
+      localStorage.setItem(
+        'sort',
+        JSON.stringify({ nameOption: false, methodOption: false })
+      );
       setState(prevState => ({
         ...prevState,
         onMount: false,
