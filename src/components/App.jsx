@@ -34,6 +34,12 @@ export const App = () => {
         sort: parsedSort,
         onMount: false,
       }));
+    } else {
+      localStorage.setItem('sort', JSON.stringify(state.sort));
+      setState(prevState => ({
+        ...prevState,
+        onMount: false,
+      }));
     }
 
     const storedContacts = localStorage.getItem('contacts');
