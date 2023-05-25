@@ -1,23 +1,29 @@
 import css from './ContactList.module.css';
 import PropTypes from 'prop-types';
 
-export const ContactList = props => {
+export const ContactList = ({contacts, deleteContact}) => {
   return (
     <div>
-        <ul className={css.contactsList}>
-          {props.contacts.map(contact => (
-            <li className={css.contactItem} key={contact.id}>
-              {`${contact.name}: `}
-              <span className={css.contactItemNumer}>{contact.number}</span>
-              <button
-                className={css.contactItemDeleteBtn}
-                onClick={() => props.deleteContact(contact.id)}
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
+      <ul className={css.contactsList}>
+        {contacts.length > 0 ? (
+          <>
+            {contacts.map(contact => (
+              <li className={css.contactItem} key={contact.id}>
+                {`${contact.name}: `}
+                <span className={css.contactItemNumer}>{contact.number}</span>
+                <button
+                  className={css.contactItemDeleteBtn}
+                  onClick={() => deleteContact(contact.id)}
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </>
+        ) : (
+            <h5 className={css.noContacts}>No contacts meet search criteria.</h5>
+          )}
+      </ul>
     </div>
   );
 };

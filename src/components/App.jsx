@@ -82,26 +82,26 @@ export const App = () => {
     localStorage.setItem('contacts', JSON.stringify(updatedContacts));
   };
 
-  const contactsFilter = () => {
-    const { filter, contacts } = state;
-    const normalizedFilter = filter.toLowerCase();
+  const contactsFilter = e => {
+    if (e) {
+      const input = e.target.value;
+      setState(prevState => ({
+        ...prevState,
+        filter: input,
+      }));
+    } else {
+      const { filter, contacts } = state;
+      const normalizedFilter = filter.toLowerCase();
 
-    return contacts.filter(
-      contact =>
-        contact.name.toLowerCase().includes(normalizedFilter) ||
-        contact.number.includes(normalizedFilter)
-    );
+      return contacts.filter(
+        contact =>
+          contact.name.toLowerCase().includes(normalizedFilter) ||
+          contact.number.includes(normalizedFilter)
+      );
+    }
   };
 
-  const updateFilter = event => {
-    const filter = event.target.value;
-    setState(prevState => ({
-      ...prevState,
-      filter: filter,
-    }));
-  };
-
-  const handleChange = (value, checked) => {
+  const handleSortChange = (value, checked) => {
     setState(prevState => ({
       ...prevState,
       sort: {
@@ -166,7 +166,7 @@ export const App = () => {
         <>
           <Filter
             filter={state.filter}
-            filterContacts={updateFilter}
+            contactsFilter={contactsFilter}
             contacts={state.contacts}
           />
           <Sort
@@ -175,13 +175,13 @@ export const App = () => {
             isChecked={state.sort.nameOption}
             optionOne="First Name"
             optionTwo="Last Name"
-            handleChange={handleChange}
+            handleSortChange={handleSortChange}
             contacts={state.contacts}
           />
           <Sort
             value="methodOption"
             isChecked={state.sort.methodOption}
-            margin="43px"
+            margin="45px"
             optionOne={
               <FontAwesomeIcon
                 icon={faArrowDownAZ}
@@ -196,7 +196,7 @@ export const App = () => {
                 style={{ color: '#000000' }}
               />
             }
-            handleChange={handleChange}
+            handleSortChange={handleSortChange}
             contacts={state.contacts}
           />
           <ContactList
