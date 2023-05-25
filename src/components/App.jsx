@@ -124,15 +124,10 @@ export const App = () => {
   const sortContacts = () => {
     const sortInfo = JSON.parse(localStorage.getItem('sort'));
     const { nameOption, methodOption } = sortInfo;
-    let sortBy;
-    let sortOrder;
+    let sortBy = nameOption ? 'lastName' : 'firstName';
+    let sortOrder = methodOption ? 'desc' : 'asc';
 
-    nameOption ? (sortBy = 'lastName') : (sortBy = 'firstName');
-    methodOption ? (sortOrder = 'desc') : (sortOrder = 'asc');
-
-    const contacts = [...state.contacts];
-
-    const sortedContacts = contacts.sort((a, b) => {
+    const sortedContacts = state.contacts.sort((a, b) => {
       let nameA;
       let nameB;
 
@@ -140,8 +135,10 @@ export const App = () => {
         nameA = a.name.split(' ')[0];
         nameB = b.name.split(' ')[0];
       } else if (sortBy === 'lastName') {
-        nameA = a.name.split(' ')[1];
-        nameB = b.name.split(' ')[1];
+        nameA = a.name.split(' ');
+        nameB = b.name.split(' ');
+        nameA = nameA[nameA.length - 1];
+        nameB = nameB[nameB.length - 1];
       }
 
       return sortOrder === 'asc'
@@ -161,7 +158,7 @@ export const App = () => {
     <div className={css.app}>
       <h1>Phonebook</h1>
       <ContactForm addContact={addContact} />
-      <h2>Contacts</h2>
+      <h2 className={css.contactsTitle}>Contacts</h2>
       {state.contacts.length > 0 ? (
         <>
           <Filter

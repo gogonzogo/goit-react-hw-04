@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 export const ContactList = ({contacts, deleteContact}) => {
   return (
-    <div>
+    <div className={css.contactsListContainer}>
       <ul className={css.contactsList}>
         {contacts.length > 0 ? (
           <>
