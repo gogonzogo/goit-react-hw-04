@@ -10,7 +10,7 @@ export const Filter = ({ filter, contactsFilter, contacts }) => {
           <input
             className={css.filterInput}
             type="text"
-            onChange={(e) => contactsFilter(e)}
+            onChange={e => contactsFilter(e)}
             value={filter}
           ></input>
         </div>

@@ -1,7 +1,7 @@
 import css from './ContactList.module.css';
 import PropTypes from 'prop-types';
 
-export const ContactList = ({contacts, deleteContact}) => {
+export const ContactList = ({ contacts, deleteContact }) => {
   return (
     <div className={css.contactsListContainer}>
       <ul className={css.contactsList}>
@@ -21,8 +21,8 @@ export const ContactList = ({contacts, deleteContact}) => {
             ))}
           </>
         ) : (
-            <h5 className={css.noContacts}>No contacts meet search criteria.</h5>
-          )}
+          <h5 className={css.noContacts}>No contacts meet search criteria.</h5>
+        )}
       </ul>
     </div>
   );

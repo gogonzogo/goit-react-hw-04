@@ -1,4 +1,5 @@
 import css from './Sort.module.css';
+import PropTypes from 'prop-types';
 
 export const Sort = ({
   title,
@@ -13,8 +14,6 @@ export const Sort = ({
   const onChange = event => {
     const value = event.target.dataset.value;
     const checked = event.target.checked;
-
-    // if checked is false then make it
 
     handleSortChange(value, checked);
   };
@@ -46,4 +45,15 @@ export const Sort = ({
       )}
     </>
   );
+};
+
+Sort.propTypes = {
+  title: PropTypes.string,
+  value: PropTypes.string.isRequired,
+  isChecked: PropTypes.bool.isRequired,
+  margin: PropTypes.string,
+  optionOne: PropTypes.string.isRequired,
+  optionTwo: PropTypes.string.isRequired,
+  handleSortChange: PropTypes.func.isRequired,
+  contacts: PropTypes.array.isRequired,
 };

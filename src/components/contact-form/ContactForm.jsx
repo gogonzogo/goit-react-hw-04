@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { nanoid } from 'nanoid';
 import PropTypes from 'prop-types';
 
-export const ContactForm = ({ contacts, addContact }) => {
+export const ContactForm = ({ addContact }) => {
   const [state, setState] = useState({
     name: '',
     number: '',
