@@ -12,56 +12,39 @@ import {
 import { ThreeDots } from 'react-loader-spinner';
 
 export const App = () => {
-  const [state, setState] = useState({
-    contacts: [],
-    filter: '',
-    sort: { nameOption: false, methodOption: false },
-    onMount: true,
-  });
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
+  const [sort, setSort] = useState({ nameOption: false, methodOption: false });
+  const [onMount, setOnMount] = useState(true);
 
   useEffect(() => {
-    setState(prevState => ({
-      ...prevState,
-      onMount: false,
-    }));
+    setOnMount(false);
 
     const storedSort = localStorage.getItem('sort');
     const parsedSort = JSON.parse(storedSort);
 
     if (parsedSort) {
-      setState(prevState => ({
-        ...prevState,
-        sort: parsedSort,
-        onMount: false,
-      }));
+      setSort(parsedSort);
     } else {
-      localStorage.setItem('sort', JSON.stringify({ nameOption: false, methodOption: false }));
-      setState(prevState => ({
-        ...prevState,
-        onMount: false,
-      }));
+      localStorage.setItem(
+        'sort',
+        JSON.stringify({ nameOption: false, methodOption: false })
+      );
     }
 
     const storedContacts = localStorage.getItem('contacts');
     const parsedContacts = JSON.parse(storedContacts);
 
     if (parsedContacts) {
-      setState(prevState => ({
-        ...prevState,
-        contacts: parsedContacts,
-      }));
+      setContacts(parsedContacts);
     }
   }, []);
 
-  const contactsFilter = e => {
+  const updateContactsFilter = e => {
     if (e) {
       const input = e.target.value;
-      setState(prevState => ({
-        ...prevState,
-        filter: input,
-      }));
+      setFilter(input);
     } else {
-      const { filter, contacts } = state;
       const normalizedFilter = filter.toLowerCase();
 
       return contacts.filter(
@@ -73,18 +56,15 @@ export const App = () => {
   };
 
   const handleSortChange = (value, checked) => {
-    setState(prevState => ({
+    setSort(prevState => ({
       ...prevState,
-      sort: {
-        ...prevState.sort,
-        [value]: checked,
-      },
+      [value]: checked,
     }));
 
     localStorage.setItem(
       'sort',
       JSON.stringify({
-        ...state.sort,
+        ...sort,
         [value]: checked,
       })
     );
@@ -97,8 +77,8 @@ export const App = () => {
     const { nameOption, methodOption } = sortInfo;
     let sortBy = nameOption ? 'lastName' : 'firstName';
     let sortOrder = methodOption ? 'desc' : 'asc';
-    setState(prevState => {
-      const sortedContacts = [...prevState.contacts].sort((a, b) => { 
+    setContacts(prevState => {
+      const sortedContacts = [...prevState].sort((a, b) => {
         let nameA;
         let nameB;
 
@@ -106,12 +86,12 @@ export const App = () => {
           nameA = a.name.split(' ')[0];
           nameB = b.name.split(' ')[0];
         } else if (sortBy === 'lastName') {
-           nameA = a.name.split(' ');
-           nameB = b.name.split(' ');
-           nameA = nameA[nameA.length - 1];
+          nameA = a.name.split(' ');
+          nameB = b.name.split(' ');
+          nameA = nameA[nameA.length - 1];
           nameB = nameB[nameB.length - 1];
         }
-        
+
         return sortOrder === 'asc'
           ? nameA.localeCompare(nameB)
           : nameB.localeCompare(nameA);
@@ -119,16 +99,12 @@ export const App = () => {
 
       localStorage.setItem('contacts', JSON.stringify(sortedContacts));
 
-      return {
-        ...prevState,
-        contacts: sortedContacts,
-      };
+      return sortedContacts;
     });
   };
 
   const addContact = newContact => {
     const { name, number } = newContact;
-    const contacts = state.contacts;
 
     const existingContact = contacts.find(
       contact =>
@@ -141,24 +117,16 @@ export const App = () => {
       return;
     }
 
-    setState(prevState => {
-      const updatedContacts = [...prevState.contacts, newContact];
-      localStorage.setItem('contacts', JSON.stringify(updatedContacts));
-      return {
-        ...prevState,
-        contacts: updatedContacts,
-      };
-    });
+    const updatedContacts = [...contacts, newContact];
+    localStorage.setItem('contacts', JSON.stringify(updatedContacts));
+    setContacts(updatedContacts);
 
     sortContacts();
   };
 
   const deleteContact = id => {
-    const updatedContacts = state.contacts.filter(contact => contact.id !== id);
-    setState(prevState => ({
-      ...prevState,
-      contacts: updatedContacts,
-    }));
+    const updatedContacts = contacts.filter(contact => contact.id !== id);
+    setContacts(updatedContacts);
     localStorage.setItem('contacts', JSON.stringify(updatedContacts));
   };
 
@@ -167,25 +135,25 @@ export const App = () => {
       <h1>Phonebook</h1>
       <ContactForm addContact={addContact} />
       <h2 className={css.contactsTitle}>Contacts</h2>
-      {state.contacts.length > 0 ? (
+      {contacts.length > 0 ? (
         <>
           <Filter
-            filter={state.filter}
-            contactsFilter={contactsFilter}
-            contacts={state.contacts}
+            filter={filter}
+            updateContactsFilter={updateContactsFilter}
+            contacts={contacts}
           />
           <Sort
             title="Sort contacts by name"
             value="nameOption"
-            isChecked={state.sort.nameOption}
+            isChecked={sort.nameOption}
             optionOne="First Name"
             optionTwo="Last Name"
             handleSortChange={handleSortChange}
-            contacts={state.contacts}
+            contacts={contacts}
           />
           <Sort
             value="methodOption"
-            isChecked={state.sort.methodOption}
+            isChecked={sort.methodOption}
             margin="45px"
             optionOne={
               <FontAwesomeIcon
@@ -202,14 +170,14 @@ export const App = () => {
               />
             }
             handleSortChange={handleSortChange}
-            contacts={state.contacts}
+            contacts={contacts}
           />
           <ContactList
-            contacts={contactsFilter()}
+            contacts={updateContactsFilter()}
             deleteContact={deleteContact}
           />
         </>
-      ) : state.onMount ? (
+      ) : onMount ? (
         <>
           <h5>Locating Contacts</h5>
           <ThreeDots

@@ -1,7 +1,7 @@
 import css from './Filter.module.css';
 import PropTypes from 'prop-types';
 
-export const Filter = ({ filter, contactsFilter, contacts }) => {
+export const Filter = ({ filter, updateContactsFilter, contacts }) => {
   return (
     <>
       {contacts.length > 1 && (
@@ -10,7 +10,7 @@ export const Filter = ({ filter, contactsFilter, contacts }) => {
           <input
             className={css.filterInput}
             type="text"
-            onChange={e => contactsFilter(e)}
+            onChange={e => updateContactsFilter(e)}
             value={filter}
           ></input>
         </div>
@@ -20,7 +20,7 @@ export const Filter = ({ filter, contactsFilter, contacts }) => {
 };
 
 Filter.propTypes = {
-  contactsFilter: PropTypes.func.isRequired,
+  updateContactsFilter: PropTypes.func.isRequired,
   filter: PropTypes.string.isRequired,
   contacts: PropTypes.array.isRequired,
 };
