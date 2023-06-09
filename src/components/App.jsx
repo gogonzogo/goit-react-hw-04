@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { ContactForm } from './contact-form/ContactForm.jsx';
-import { Filter } from './filter/Filter.jsx';
-import { ContactList } from './contact-list/ContactList.jsx';
-import { Sort } from './sort/Sort.jsx';
+import { ContactForm } from './ContactForm/ContactForm.jsx';
+import { Filter } from './Filter/Filter.jsx';
+import { ContactList } from './ContactList/ContactList.jsx';
+import { Sort } from './Sort/Sort.jsx';
 import css from './App.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -121,7 +121,9 @@ export const App = () => {
     localStorage.setItem('contacts', JSON.stringify(updatedContacts));
     setContacts(updatedContacts);
 
-    sortContacts();
+    if (contacts.length > 1) {
+      sortContacts();
+    }
   };
 
   const deleteContact = id => {
