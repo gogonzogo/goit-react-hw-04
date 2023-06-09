@@ -1,7 +1,7 @@
 import css from './Filter.module.css';
 import PropTypes from 'prop-types';
 
-export const Filter = ({ filter, updateContactsFilter, contacts }) => {
+const Filter = ({ filter, updateContactsFilter, contacts }) => {
   return (
     <>
       {contacts.length > 1 && (
@@ -24,3 +24,5 @@ Filter.propTypes = {
   filter: PropTypes.string.isRequired,
   contacts: PropTypes.array.isRequired,
 };
+
+export default Filter
